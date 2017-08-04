@@ -33,6 +33,8 @@ module Statistics.Quantile
     , medianUnbiased
     , normalUnbiased
 
+    -- * Median functions
+    , mad
     -- * References
     -- $references
     ) where
@@ -188,6 +190,22 @@ normalUnbiased = ContParam ta ta
 
 modErr :: String -> String -> a
 modErr f err = error $ "Statistics.Quantile." ++ f ++ ": " ++ err
+
+
+-- | O(/n/ log /n/). Estimate the median absolute deviation (MAD) of a
+--   sample /x/ using 'continuousBy'. It's robust estimate of
+--   variability in sample and defined as:
+--
+--   \[
+--   MAD = \operatorname{median}(| X_i - \operatorname{median}(X) |)
+--   \]
+mad :: G.Vector v Double
+    => ContParam  -- ^ Parameters /a/ and /b/.
+    -> v Double   -- ^ /x/, the sample data.
+    -> Double
+mad cp x = med . G.map (\a -> abs $ a - med x) $ x
+  where med = continuousBy cp 2 4
+
 
 -- $references
 --
